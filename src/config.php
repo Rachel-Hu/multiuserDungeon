@@ -14,4 +14,6 @@ if(!$connect){
     echo "Database connection error: please check the settings";
 }
 
+date_default_timezone_set("America/New_York");
+
 ?>

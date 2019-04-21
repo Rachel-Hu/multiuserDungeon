@@ -21,14 +21,12 @@
         }
         // If the user want to send a chat message to every one in the world.
         else if(stripos($line, 'yell') === 0){
-            // Extract user's words.
             $words = trim(explode('yell', $line)[1])."\n";
             $message = $sender.' said to every one : '.$words;
             yell($message, $connect);
         }
         // If the user want to send a chat message to a certain person.
         else if(stripos($line, 'tell') === 0){
-            // Extract user's words.
             $words = trim(explode('tell', $line)[1]);
             $receiver = trim(explode(' ', $words)[0]);
             $dialogue = trim(explode($receiver, $line)[1])."\n";

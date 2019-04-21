@@ -24,8 +24,25 @@
         <p class="text-center">
             <?php 
                 $intro = "Welcome to the world! ";
-                if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
+                if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
                     $intro .= "You are now in Room ".$_SESSION['room'].". <br>";
+                    $room = $_SESSION['room'];
+                    $query = "SELECT COUNT(*) FROM user WHERE room_id = $room";
+                    $count_user_query = mysqli_query($connect, $query);
+                    if(!$count_user_query) {
+                        die("QUERY FAILED");
+                    }
+                    else {
+                        $others = mysqli_fetch_array($count_user_query)[0] - 1;
+                        if($others == 0) {
+                            $intro .= "You are the only person in this room. <br>";
+                        }
+
+                        else {
+                            $intro .= "There are ".$others." more adventurers in the same room. <br>";
+                        }
+                    }  
+                }
                 echo $intro; 
                 // $current_room->description($users);
             ?>
@@ -62,9 +79,9 @@
         <h2 class="text-center">Message</h2>
         <!-- Print out all messages sent to the whole world -->
         <div class="card" style="margin: 2em 0;">
-            <ul class="list-group list-group-flush">
+            <ul class="list-group list-group-flush" id="public">
                 <?php
-                    $query = "SELECT * FROM announcement ORDER BY send_time DESC LIMIT 5";
+                    $query = "SELECT * FROM announcement ORDER BY send_time DESC LIMIT 3";
                     $select_message_query = mysqli_query($connect, $query);
                     if(!$select_message_query) {
                         die("QUERY FAILED");
@@ -81,7 +98,7 @@
         </div> 
         <!-- Print out all messages sent to the current room and user -->
         <div class="card" style="margin: 2em 0;">
-            <ul class="list-group list-group-flush">
+            <ul class="list-group list-group-flush" id="private">
                 <?php
                     if(isset($_SESSION['user'])) {
                         $username = $_SESSION['user'];
@@ -151,7 +168,9 @@
 
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="static/index.js"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+    <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 </body>
