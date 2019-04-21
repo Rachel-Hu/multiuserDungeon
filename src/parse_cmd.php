@@ -3,12 +3,14 @@
 <?php
     if(isset($_POST['command']) && $_POST['command']) {
         $command = trim($_POST['command']);
+        $command = mysqli_real_escape_string($connect, $command);
         $sender = $_SESSION['user'];
         parse_command($command, $sender, $connect);
-        // header('Location: ../index.php');           
+        header('Location: ../index.php');           
     }
 
     function parse_command($line, $sender, $connect) {
+        $directions = array('north', 'south', 'east', 'west', 'up', 'down');
         // If the user want to send a chat message to everyone in the room 
         if(stripos($line, 'say') === 0){
             // Extract user's words.
@@ -30,11 +32,15 @@
             $words = trim(explode('tell', $line)[1]);
             $receiver = trim(explode(' ', $words)[0]);
             $dialogue = trim(explode($receiver, $line)[1])."\n";
-            $room = $_SESSION['room'];
             $message = $sender.' said to '.$receiver.': '.$dialogue;  
             tell($message, $sender, $receiver, $connect);          
         }
-
+        // If the user want to move around 
+        else if(array_search(strtolower($line), $directions) !== false) {
+            $line = strtolower($line);
+            $room = $_SESSION['room'];
+            move($room, $sender, $line, $connect);
+        }
         else {
             $error_message = "ERROR: illegal instruction, please try again.";
             $_SESSION['message'] = $error_message;
@@ -88,7 +94,86 @@
         $send_message_query = mysqli_query($connect, $message_query);
         if(!$send_message_query) {
             die("QUERY FAILED");           
+        }    
+    }
+
+    function move($room, $sender, $line, $connect) {
+        $new_room = 0;
+        switch ($line) {
+            case 'north':
+            case 'south':
+                switch ($room) {
+                    case 2:
+                        $new_room = 3;
+                        break;
+                    case 3:
+                        $new_room = 2;
+                        break;
+                    case 5:
+                        $new_room = 8;
+                        break;
+                    case 8:
+                        $new_room = 5;
+                        break;
+                    default:
+                        $new_room = 0;
+                }
+                break;
+            case 'west':
+            case 'east':
+                switch ($room) {
+                    case 1:
+                        $new_room = 2;
+                        break;
+                    case 2:
+                        $new_room = 1;
+                        break;
+                    case 7:
+                        $new_room = 8;
+                        break;
+                    case 8:
+                        $new_room = 7;
+                        break;
+                    default:
+                        $new_room = 0;
+                }
+                break;
+            case 'up':
+            case 'down':
+                switch ($room) {
+                    case 1:
+                        $new_room = 5;
+                        break;
+                    case 5:
+                        $new_room = 1;
+                        break;
+                    case 3:
+                        $new_room = 7;
+                        break;
+                    case 7:
+                        $new_room = 3;
+                        break;
+                    default:
+                        $new_room = 0;
+                }
+                break;
+            default:
+                $new_room = 0;
         }
-        
+        if($new_room == 0) {
+            $error_message = "ERROR: illegal moving direction, the room you are moving to is solid.";
+            $_SESSION['message'] = $error_message;
+        }
+        else {
+            $room_query = "UPDATE user SET room_id = $new_room
+                                    WHERE username = '$sender'";
+            $change_room_query = mysqli_query($connect, $room_query);
+            if(!$change_room_query) {
+                die("QUERY FAILED");           
+            }
+            else {
+                $_SESSION['room'] = $new_room;
+            }
+        }
     }
 ?>

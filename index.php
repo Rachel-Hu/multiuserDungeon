@@ -1,4 +1,4 @@
-<?php include "main.php" ?>
+<?php include "src/config.php" ?>
 <?php session_start(); ?>
 
 <!DOCTYPE html>
@@ -12,10 +12,18 @@
 </head>
 <body>
     <div class="container" style="margin: 2em auto;">
+        <!-- Print out error message -->
+        <?php
+            if(isset($_SESSION['message']) && $_SESSION['message']) {
+                $error_message = '<div class="alert alert-danger" role="alert">'.$_SESSION['message'].'</div>';
+                echo $error_message;
+                $_SESSION['message'] = '';
+            }
+        ?>
         <h2 class="text-center">Introduction</h2>
         <p class="text-center">
             <?php 
-                $intro = "Welcome to the world! <br>";
+                $intro = "Welcome to the world! ";
                 if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true)
                     $intro .= "You are now in Room ".$_SESSION['room'].". <br>";
                 echo $intro; 
@@ -46,7 +54,7 @@
                 </tr>
                 <tr>
                     <th scope="row">&lt;direction&gt;</th>
-                    <td>move around</td>
+                    <td>move around, directions including north, south, east, west, up, and down</td>
                 </tr>
             </tbody>
         </table>
@@ -56,7 +64,7 @@
         <div class="card" style="margin: 2em 0;">
             <ul class="list-group list-group-flush">
                 <?php
-                    $query = "SELECT * FROM announcement";
+                    $query = "SELECT * FROM announcement ORDER BY send_time DESC LIMIT 5";
                     $select_message_query = mysqli_query($connect, $query);
                     if(!$select_message_query) {
                         die("QUERY FAILED");
@@ -75,20 +83,23 @@
         <div class="card" style="margin: 2em 0;">
             <ul class="list-group list-group-flush">
                 <?php
-                    $username = $_SESSION['user'];
-                    $query = "SELECT * FROM messages 
-                                INNER JOIN user ON user.id = messages.user_id
-                                WHERE user.username = '$username'";
-                    $select_message_query = mysqli_query($connect, $query);
-                    if(!$select_message_query) {
-                        die("QUERY FAILED");
-                    }   
-                    while($row = mysqli_fetch_array($select_message_query)) {
-                        $message = $row['messages'];
-                        $time = $row['send_time'];
-                        $message_line = '<li class="list-group-item"><span>'.$message.'</span><span style="float: right;">';
-                        $message_line .= $time.'</span></li>';
-                        echo $message_line;
+                    if(isset($_SESSION['user'])) {
+                        $username = $_SESSION['user'];
+                        $query = "SELECT * FROM messages 
+                                    INNER JOIN user ON user.id = messages.user_id
+                                    WHERE user.username = '$username' 
+                                    ORDER BY send_time DESC LIMIT 5";
+                        $select_message_query = mysqli_query($connect, $query);
+                        if(!$select_message_query) {
+                            die("QUERY FAILED");
+                        }   
+                        while($row = mysqli_fetch_array($select_message_query)) {
+                            $message = $row['messages'];
+                            $time = $row['send_time'];
+                            $message_line = '<li class="list-group-item"><span>'.$message.'</span><span style="float: right;">';
+                            $message_line .= $time.'</span></li>';
+                            echo $message_line;
+                        }
                     }
                 ?>
             </ul>
@@ -109,7 +120,7 @@
                                     </div>  
                                 </form>';
                 echo $command_form;
-                $logout_btn = '<div class="text-center" style="position: absolute; left: 20%; right: 20%; bottom: 5%;">
+                $logout_btn = '<div class="text-center" style="position: absolute; right: 20%; top: 5%;">
                                     <a href="src/logout.php" class="btn btn-outline-danger">Logout</a>
                                 </div>';
                 echo $logout_btn;
