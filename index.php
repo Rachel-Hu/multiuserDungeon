@@ -54,7 +54,7 @@
         <h2 class="text-center">Message</h2>
         <!-- Print out all messages sent to the whole world -->
         <div class="card" style="margin: 2em 0;">
-            <div class="card-body">
+            <ul class="list-group list-group-flush">
                 <?php
                     $query = "SELECT * FROM announcement";
                     $select_message_query = mysqli_query($connect, $query);
@@ -64,16 +64,16 @@
                     while($row = mysqli_fetch_array($select_message_query)) {
                         $message = $row['announcement'];
                         $time = $row['send_time'];
-                        $message_line = '<span>'.$message.'</span><span style="float: right;">';
-                        $message_line .= $time.'</span>';
+                        $message_line = '<li class="list-group-item"><span>'.$message.'</span><span style="float: right;">';
+                        $message_line .= $time.'</span></li>';
                         echo $message_line;
                     }
                 ?>
-            </div>
+            </ul>
         </div> 
-        <!-- Print out all messages sent to the current room -->
+        <!-- Print out all messages sent to the current room and user -->
         <div class="card" style="margin: 2em 0;">
-            <div class="card-body">
+            <ul class="list-group list-group-flush">
                 <?php
                     $username = $_SESSION['user'];
                     $query = "SELECT * FROM messages 
@@ -86,12 +86,12 @@
                     while($row = mysqli_fetch_array($select_message_query)) {
                         $message = $row['messages'];
                         $time = $row['send_time'];
-                        $message_line = '<span>'.$message.'</span><span style="float: right;">';
-                        $message_line .= $time.'</span>';
+                        $message_line = '<li class="list-group-item"><span>'.$message.'</span><span style="float: right;">';
+                        $message_line .= $time.'</span></li>';
                         echo $message_line;
                     }
                 ?>
-            </div>
+            </ul>
         </div>   
         <?php
             // If the current user is logged in, ask for the user to enter command.
