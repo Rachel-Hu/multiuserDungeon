@@ -1,3 +1,4 @@
+// From client side, send a request to refresh page
 function getMessage() {
     $.ajax({
         url: "src/refresh_page.php",
@@ -9,10 +10,13 @@ function getMessage() {
     });
 }
 
+// Update public and private messsage separately
 function updateMessage(message) {
+    // First remove all old messages
     $("li").remove();
     var public = message['public'];
     var private = message['private'];
+    // Then add the new ones
     $(public).each(function() {
         $("#public").append(
             '<li class="list-group-item"><span>' + this.announcement + 

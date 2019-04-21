@@ -14,12 +14,15 @@
         }
 
         $row = mysqli_fetch_array($select_user_query);
+        // If the username already exists, log in 
         if($row) {
             $_SESSION['logged_in'] = true;
             $_SESSION['room'] = $row['room_id'];
             $_SESSION['user'] = $username;
             header('Location: ../index.php');         
         }
+        // Else, register the user's username and log in
+        // The default room of new users is room 1
         else {
             $query = "INSERT INTO user (username, room_id) 
                         VALUES ('$username', 1)";

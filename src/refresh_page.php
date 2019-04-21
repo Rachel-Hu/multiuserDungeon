@@ -1,6 +1,7 @@
 <?php include 'config.php' ?>
 <?php session_start(); ?>
 <?php
+    // Select latest 3 messages send to the whole world
     $query = "SELECT * FROM announcement ORDER BY send_time DESC LIMIT 3";
     $select_message_query = mysqli_query($connect, $query);
     if(!$select_message_query) {
@@ -10,7 +11,7 @@
     while($row = mysqli_fetch_array($select_message_query)) {
         $public[] = $row;
     }
-
+    // If the user is logged in, select latest 5 messages to the user
     if(isset($_SESSION['user'])) {
         $username = $_SESSION['user'];
         $query = "SELECT * FROM messages 
@@ -26,6 +27,7 @@
             $private[] = $row;
         }
     }
+    // Pack into one json object
     $messages = array();
     $messages['public'] = $public;
     $messages['private'] = $private;

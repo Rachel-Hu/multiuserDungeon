@@ -9,6 +9,12 @@
         header('Location: ../index.php');           
     }
 
+    /* 
+     * parse_command: to parse the command from user input. Based on legal
+     * command set, the user will receive different reactions. If the command is 
+     * not allowed, however, the user will receive an error message.
+     * All commmand is case-insensitive.
+     */
     function parse_command($line, $sender, $connect) {
         $directions = array('north', 'south', 'east', 'west', 'up', 'down');
         // If the user want to send a chat message to everyone in the room 
@@ -39,19 +45,24 @@
             $room = $_SESSION['room'];
             move($room, $sender, $line, $connect);
         }
+        // The rest of commands are illegal and an error message will be presented
         else {
             $error_message = "ERROR: illegal instruction, please try again.";
             $_SESSION['message'] = $error_message;
         }       
     }
 
+    /* 
+     * say_to_room: send a message to everyone in the same room
+     */
     function say_to_room($message, $room, $sender, $connect) {
+        // Select all users in the same room
         $query = "SELECT * FROM user WHERE room_id = $room ";
         $select_user_query = mysqli_query($connect, $query);
         if(!$select_user_query) {
             die("QUERY FAILED");
         }
-
+        // Send the same message
         while($row = mysqli_fetch_array($select_user_query)) {
             $user_id = $row['id'];
             $datetime = date('Y-m-d H:i:s');
@@ -66,6 +77,9 @@
         }
     }
 
+    /* 
+     * yell: send a message to everyone 
+     */
     function yell($message, $connect) {
         $datetime = date('Y-m-d H:i:s');
         $query = "INSERT INTO announcement (announcement, send_time) VALUES ('$message', '$datetime')";
@@ -76,13 +90,18 @@
         }
     }
 
+    /* 
+     * tell: send a message to a specific user
+     */
     function tell($message, $sender, $receiver, $connect) {
+        // Find the specific user from database
         $query = "SELECT * FROM user WHERE username = '$receiver'";
         $select_user_query = mysqli_query($connect, $query);
         if(!$select_user_query) {
             die("QUERY FAILED");
         }
 
+        // Send the message
         $row = mysqli_fetch_array($select_user_query);
         $user_id = $row['id'];
         $datetime = date('Y-m-d H:i:s');
@@ -95,6 +114,11 @@
         }    
     }
 
+    /* 
+     * move: make movements. 
+     * The room conditions are hard-coded here. It is a 2*2*2 cube, with room 4
+     * and 6 to be soild (which users cannot move to).
+     */
     function move($room, $sender, $line, $connect) {
         $new_room = 0;
         switch ($line) {
