@@ -16,6 +16,7 @@ function updateMessage(message) {
     $("li").remove();
     var public = message['public'];
     var private = message['private'];
+    var intro = message['description'];
     // Then add the new ones
     $(public).each(function() {
         $("#public").append(
@@ -31,6 +32,9 @@ function updateMessage(message) {
                         this.send_time + '</span></li>'                   
         );
     });
+    $('#room-description').remove();
+    $('#des-box').append('<p class="text-center" id="room-description">' + 
+                            intro + '</p>');
 }
 
 window.onload = getMessage;

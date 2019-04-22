@@ -22,33 +22,35 @@
         ?>
         <!-- An introduction to the current room -->
         <h2 class="text-center">Introduction</h2>
-        <p class="text-center">
-            <?php 
-                $intro = "Welcome to the world! ";
-                // If the user is logged in, a description of the room number and 
-                // users in that room will be given.
-                if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
-                    $intro .= "You are now in Room ".$_SESSION['room'].". <br>";
-                    $room = $_SESSION['room'];
-                    $query = "SELECT COUNT(*) FROM user WHERE room_id = $room";
-                    $count_user_query = mysqli_query($connect, $query);
-                    if(!$count_user_query) {
-                        die("QUERY FAILED");
-                    }
-                    else {
-                        $others = mysqli_fetch_array($count_user_query)[0] - 1;
-                        if($others == 0) {
-                            $intro .= "You are the only person in this room. <br>";
+        <div id="des-box">
+            <p class="text-center" id="room-description">
+                <?php 
+                    $intro = "Welcome to the world! ";
+                    // If the user is logged in, a description of the room number and 
+                    // users in that room will be given.
+                    if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
+                        $intro .= "You are now in Room ".$_SESSION['room'].". <br>";
+                        $room = $_SESSION['room'];
+                        $query = "SELECT COUNT(*) FROM user WHERE room_id = $room";
+                        $count_user_query = mysqli_query($connect, $query);
+                        if(!$count_user_query) {
+                            die("QUERY FAILED");
                         }
-
                         else {
-                            $intro .= "There are ".$others." more adventurers in the same room. <br>";
-                        }
-                    }  
-                }
-                echo $intro; 
-            ?>
-        </p>
+                            $others = mysqli_fetch_array($count_user_query)[0] - 1;
+                            if($others == 0) {
+                                $intro .= "You are the only person in this room. <br>";
+                            }
+
+                            else {
+                                $intro .= "There are ".$others." more adventurers in the same room. <br>";
+                            }
+                        }  
+                    }
+                    echo $intro; 
+                ?>
+            </p>
+        </div>
         <hr>
         <!-- An introduction of the basic command the user could use -->
         <h2 class="text-center">Command</h2>
